@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3001/api';
+//const API_URL = 'http://localhost:3001/api'; --> dev only
+const API_URL = '/api'; //production
 
 export async function validateVerse(input) {
   const response = await fetch(`${API_URL}/validate-verse`, {
