@@ -1,0 +1,33 @@
+{
+    "compilerOptions": {
+      /* Project structure */
+      "baseUrl": ".",
+  
+      /* Path aliases */
+      "paths": {
+        "@/*": ["src/*"]
+      },
+  
+      /* JS language features */
+      "target": "ESNext",
+      "module": "ESNext",
+      "moduleResolution": "Bundler",
+  
+      /* JSX + React */
+      "jsx": "react-jsx",
+  
+      /* Editor experience */
+      "allowJs": true,
+      "checkJs": false,
+      "noEmit": true,
+  
+      /* Quality-of-life */
+      "resolveJsonModule": true,
+      "isolatedModules": true,
+      "skipLibCheck": true
+    },
+  
+    "include": ["src", "vite.config.js"],
+    "exclude": ["node_modules", "dist"]
+  }
+  

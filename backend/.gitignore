@@ -1,0 +1,23 @@
+# Security: Never commit secrets
+.env
+.env.local
+.env.*.local
+
+# Dependencies: Standard for 2025 projects
+node_modules/
+dist/
+build/
+.cache/
+
+# OS Specific: Especially for your MacBook Pro
+.DS_Store
+Thumbs.db
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor specific
+.vscode/
+.idea/
