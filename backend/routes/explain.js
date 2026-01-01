@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { chatCompletion } = require('../utils/openai');
-const cache = require('../utils/cache');
+
 
 // POST /api/explain
 router.post('/explain', async (req, res) => {
@@ -15,14 +15,6 @@ router.post('/explain', async (req, res) => {
       });
     }
     
-     // Check cache first
-     const cacheKey = cache.generateKey('explain', reference);
-     const cached = cache.get(cacheKey);
-     
-     if (cached) {
-       return res.json(cached);
-     }
-
     console.log(`📖 Explaining ${reference}...`);
     
     // Create prompt for ChatGPT
@@ -64,10 +56,11 @@ Respond with ONLY 5 bullet points, each starting with a dash (-). No introductio
     
     console.log(`✅ Generated ${bulletPoints.length} bullet points`);
     
-    // Store in cache (7 days)
-    cache.set(cacheKey, response);
-    
-    res.json(response);
+    res.json({ 
+      reference,
+      bulletPoints,
+      usage: result.usage
+    });
     
   } catch (error) {
     console.error('Explain route error:', error);
