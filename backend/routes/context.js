@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { chatCompletion } = require('../utils/openai');
+const cache = require('../utils/cache');
 
 // POST /api/context
 router.post('/context', async (req, res) => {
@@ -14,6 +15,14 @@ router.post('/context', async (req, res) => {
       });
     }
     
+    // Check cache first
+    const cacheKey = cache.generateKey('context', reference);
+    const cached = cache.get(cacheKey);
+    
+    if (cached) {
+      return res.json(cached);
+    }
+
     console.log(`📜 Getting context for ${reference}...`);
     
     // Create prompt for ChatGPT
@@ -76,11 +85,10 @@ Be specific and scholarly but accessible. Include dates, names, and concrete det
     
     console.log(`✅ Generated context for ${reference}`);
     
-    res.json({ 
-      reference,
-      context,
-      usage: result.usage
-    });
+    // Store in cache (7 days)
+    cache.set(cacheKey, response);
+    
+    res.json(response);
     
   } catch (error) {
     console.error('Context route error:', error);
