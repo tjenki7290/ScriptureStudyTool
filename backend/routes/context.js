@@ -7,25 +7,24 @@ const cache = require('../utils/cache');
 router.post('/context', async (req, res) => {
   try {
     const { verseText, reference } = req.body;
-    
+
     // Validation
     if (!verseText || !reference) {
-      return res.status(400).json({ 
-        error: 'Missing verseText or reference' 
+      return res.status(400).json({
+        error: 'Missing verseText or reference'
       });
     }
-    
+
     // Check cache first
     const cacheKey = cache.generateKey('context', reference);
     const cached = cache.get(cacheKey);
-    
+
     if (cached) {
       return res.json(cached);
     }
 
     console.log(`📜 Getting context for ${reference}...`);
-    
-    // Create prompt for ChatGPT
+
     const prompt = `You are a biblical historian and scholar. Provide detailed historical and literary context for ${reference} in this exact JSON format:
 
 {
@@ -42,33 +41,29 @@ Verse: "${verseText}"
 
 Be specific and scholarly but accessible. Include dates, names, and concrete details. Return ONLY valid JSON with no additional commentary.`;
 
-    // Call OpenAI
     const result = await chatCompletion(
       [
         {
           role: 'system',
           content: 'You are a Biblical historian expert. Always return valid JSON exactly matching the requested structure.'
         },
-        {
-          role: 'user',
-          content: prompt
-        }
+        { role: 'user', content: prompt }
       ],
-      { 
+      {
         model: 'gpt-4',
         temperature: 0.6,
         max_tokens: 1000
       }
     );
-    
+
     if (!result.success) {
       console.error('OpenAI error:', result.error);
-      return res.status(500).json({ 
+      return res.status(500).json({
         error: 'Failed to generate context',
-        details: result.error 
+        details: result.error
       });
     }
-    
+
     // Parse JSON response
     let context;
     try {
@@ -82,18 +77,24 @@ Be specific and scholarly but accessible. Include dates, names, and concrete det
         details: 'Invalid JSON format'
       });
     }
-    
+
     console.log(`✅ Generated context for ${reference}`);
-    
-    // Store in cache (7 days)
+
+    const response = {
+      reference,
+      context,
+      usage: result.usage
+    };
+
+    // Store in cache (7 days default)
     cache.set(cacheKey, response);
-    
-    res.json(response);
-    
+
+    return res.json(response);
+
   } catch (error) {
     console.error('Context route error:', error);
-    res.status(500).json({ 
-      error: 'Server error while generating context' 
+    return res.status(500).json({
+      error: 'Server error while generating context'
     });
   }
 });
